@@ -16,6 +16,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         String[] sandwiches = getResources().getStringArray(R.array.sandwich_names);
+
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_list_item_1, sandwiches);
 
@@ -28,11 +29,17 @@ public class MainActivity extends AppCompatActivity {
                 launchDetailActivity(position);
             }
         });
+
+
     }
+
+
 
     private void launchDetailActivity(int position) {
         Intent intent = new Intent(this, DetailActivity.class);
         intent.putExtra(DetailActivity.EXTRA_POSITION, position);
         startActivity(intent);
     }
+
+
 }

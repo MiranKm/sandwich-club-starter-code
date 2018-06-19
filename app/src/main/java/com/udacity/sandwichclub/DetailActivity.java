@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
@@ -15,12 +16,22 @@ public class DetailActivity extends AppCompatActivity {
     public static final String EXTRA_POSITION = "extra_position";
     private static final int DEFAULT_POSITION = -1;
 
+
+    ImageView ingredientsIv;
+    TextView originTv, descriptionTv, alsoKnownTv, ingredientsTv;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
 
-        ImageView ingredientsIv = findViewById(R.id.image_iv);
+
+        ingredientsIv = findViewById(R.id.image_iv);
+        originTv = findViewById(R.id.origin_tv);
+        descriptionTv = findViewById(R.id.description_tv);
+        alsoKnownTv = findViewById(R.id.also_known_tv);
+        ingredientsTv = findViewById(R.id.ingredients_tv);
+
 
         Intent intent = getIntent();
         if (intent == null) {
@@ -37,13 +48,14 @@ public class DetailActivity extends AppCompatActivity {
         String[] sandwiches = getResources().getStringArray(R.array.sandwich_details);
         String json = sandwiches[position];
         Sandwich sandwich = JsonUtils.parseSandwichJson(json);
+
         if (sandwich == null) {
             // Sandwich data unavailable
             closeOnError();
             return;
-        }
+        } else
+            populateUI(sandwich);
 
-        populateUI();
         Picasso.with(this)
                 .load(sandwich.getImage())
                 .into(ingredientsIv);
@@ -56,7 +68,38 @@ public class DetailActivity extends AppCompatActivity {
         Toast.makeText(this, R.string.detail_error_message, Toast.LENGTH_SHORT).show();
     }
 
-    private void populateUI() {
+    private void populateUI(Sandwich sandwich) {
+        originTv.setText(sandwich.getMainName());
+        descriptionTv.setText(sandwich.getDescription());
+
+        if (sandwich.getIngredients() != null && sandwich.getIngredients().size() > 0) {
+
+            for (int i = 0; i < sandwich.getIngredients().size(); i++) {
+
+                ingredientsTv.append(sandwich.getIngredients().get(i));
+
+            }
+        }
+
+        if (sandwich.getAlsoKnownAs() != null && sandwich.getAlsoKnownAs().size() > 0) {
+
+            for (int i = 0; i < sandwich.getAlsoKnownAs().size(); i++) {
+                alsoKnownTv.append(sandwich.getAlsoKnownAs().get(i));
+
+            }
+
+        } else
+            alsoKnownTv.setText("other names not available");
+
+
+        if (sandwich.getPlaceOfOrigin().isEmpty()) {
+            alsoKnownTv.setText("Origin Not found");
+        } else
+            originTv.setText(sandwich.getPlaceOfOrigin());
+
+
+        Picasso.with(this).load(sandwich.getImage()).into(ingredientsIv);
+
 
     }
 }
