@@ -1,10 +1,6 @@
 package com.udacity.sandwichclub.utils;
 
-import android.nfc.Tag;
 import android.util.Log;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ScrollView;
 
 import com.udacity.sandwichclub.model.Sandwich;
 
@@ -14,7 +10,6 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.jar.Attributes;
 
 public class JsonUtils {
 
@@ -31,37 +26,36 @@ public class JsonUtils {
 
     public static Sandwich parseSandwichJson(String json) {
 
-
         try {
-            JSONObject mainJsonObject = new JSONObject(json);
 
-            JSONObject name = mainJsonObject.getJSONObject(NAME);
+            JSONObject root = new JSONObject(json);
+
+            JSONObject name = root.getJSONObject(NAME);
 
             String mainName = name.getString(MAIN_NAME);
 
-            JSONArray alsoKnownAsJSONArray = name.getJSONArray(ALSO_KNOWN_AS); // also known j array
+            JSONArray alsoKnownAsJSONArray = name.getJSONArray(ALSO_KNOWN_AS);
 
-            List<String> alsoKnowAsList = MakelistOfJsonObjects(alsoKnownAsJSONArray); //also know list done
-
-
-            String placeOfOrigin = mainJsonObject.optString(PLACE_OF_ORIGIN); // place Of origin done
-
-            String description = mainJsonObject.getString(DESCRIPTION); // des done
-
-            String image = mainJsonObject.getString(IMAGE); //Image done
-
-            JSONArray ingredientsJSONArray = mainJsonObject.getJSONArray(INGREDIENTS);
-
-            List<String> ingredientsList = MakelistOfJsonObjects(ingredientsJSONArray);
+            List<String> alsoKnowAsList = MakelistOfJsonObjects(alsoKnownAsJSONArray);
 
 
-            Log.e(TAG, "name" + name + " description" + description);
+            String placeOfOrigin = root.optString(PLACE_OF_ORIGIN);
+
+            String description = root.getString(DESCRIPTION);
+
+            String image = root.getString(IMAGE);
+
+            JSONArray ingredientsJSONArray = root.getJSONArray(INGREDIENTS);
+
+            List<String> ingredientsList = MakelistIngredients(ingredientsJSONArray);
+
+
+            Log.e(TAG, "seeing if it show anything, name" + name + " description" + description);
 
             return new Sandwich(mainName, alsoKnowAsList, placeOfOrigin, description, image, ingredientsList);
 
-
         } catch (JSONException e) {
-            Log.e(TAG, "something happened");
+            Log.e(TAG, "something error in parsing the json");
             e.printStackTrace();
         }
 
@@ -73,6 +67,19 @@ public class JsonUtils {
         List<String> listOfString = new ArrayList<>(jsonArray.length());
 
         for (int i = 0; i < jsonArray.length(); i++) {
+            listOfString.add("\n");
+            listOfString.add(jsonArray.getString(i));
+        }
+
+        return listOfString;
+    }
+
+    private static List<String> MakelistIngredients(JSONArray jsonArray) throws JSONException {
+
+        List<String> listOfString = new ArrayList<>(jsonArray.length());
+
+        for (int i = 0; i < jsonArray.length(); i++) {
+            listOfString.add("\n");
             listOfString.add(jsonArray.getString(i));
         }
 

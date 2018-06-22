@@ -25,13 +25,11 @@ public class DetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
 
-
         ingredientsIv = findViewById(R.id.image_iv);
         originTv = findViewById(R.id.origin_tv);
         descriptionTv = findViewById(R.id.description_tv);
         alsoKnownTv = findViewById(R.id.also_known_tv);
         ingredientsTv = findViewById(R.id.ingredients_tv);
-
 
         Intent intent = getIntent();
         if (intent == null) {
@@ -85,7 +83,6 @@ public class DetailActivity extends AppCompatActivity {
 
             for (int i = 0; i < sandwich.getAlsoKnownAs().size(); i++) {
                 alsoKnownTv.append(sandwich.getAlsoKnownAs().get(i));
-
             }
 
         } else
