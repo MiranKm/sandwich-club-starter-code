@@ -1,13 +1,22 @@
 package com.udacity.sandwichclub;
 
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
+import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 import com.udacity.sandwichclub.model.Sandwich;
 import com.udacity.sandwichclub.utils.JsonUtils;
 
@@ -18,12 +27,19 @@ public class DetailActivity extends AppCompatActivity {
 
 
     ImageView ingredientsIv;
-    TextView originTv, descriptionTv, alsoKnownTv, ingredientsTv;
+    TextView originTv, descriptionTv, alsoKnownTv, ingredientsTv, imageErrorTv;
+    ProgressBar imageProgressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+
+        imageProgressBar = findViewById(R.id.image_pb);
+        imageErrorTv = findViewById(R.id.image_error_tv);
 
         ingredientsIv = findViewById(R.id.image_iv);
         originTv = findViewById(R.id.origin_tv);
@@ -58,7 +74,6 @@ public class DetailActivity extends AppCompatActivity {
                 .load(sandwich.getImage())
                 .into(ingredientsIv);
 
-        setTitle(sandwich.getMainName());
     }
 
     private void closeOnError() {
@@ -67,6 +82,9 @@ public class DetailActivity extends AppCompatActivity {
     }
 
     private void populateUI(Sandwich sandwich) {
+
+        setTitle(sandwich.getMainName());
+        
         originTv.setText(sandwich.getMainName());
         descriptionTv.setText(sandwich.getDescription());
 
@@ -85,18 +103,42 @@ public class DetailActivity extends AppCompatActivity {
                 alsoKnownTv.append(sandwich.getAlsoKnownAs().get(i));
             }
 
-        } else
+        } else {
             alsoKnownTv.setText("other names not available");
+        }
 
 
-        if (sandwich.getPlaceOfOrigin().isEmpty()) {
-            alsoKnownTv.setText("Origin Not found");
-        } else
+        if (!sandwich.getPlaceOfOrigin().isEmpty()) {
             originTv.setText(sandwich.getPlaceOfOrigin());
 
+        } else
+            originTv.setText("origin not available");
 
-        Picasso.with(this).load(sandwich.getImage()).into(ingredientsIv);
+
+        final Target target = new Target() {
+            @Override
+            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                ingredientsIv.setImageBitmap(bitmap);
+                imageProgressBar.setVisibility(View.INVISIBLE);
+            }
+
+            @Override
+            public void onBitmapFailed(Drawable errorDrawable) {
+                imageErrorTv.setVisibility(View.VISIBLE);
+                ingredientsIv.setImageDrawable(errorDrawable);
+                imageProgressBar.setVisibility(View.INVISIBLE);
+
+            }
+
+            @Override
+            public void onPrepareLoad(Drawable placeHolderDrawable) {
+                ingredientsIv.setImageDrawable(placeHolderDrawable);
+                imageProgressBar.setVisibility(View.VISIBLE);
+
+            }
+        };
 
 
+        Picasso.with(this).load(sandwich.getImage()).into(target);
     }
 }
